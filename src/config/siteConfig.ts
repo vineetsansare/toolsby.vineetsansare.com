@@ -10,5 +10,5 @@ export const SITE_CONFIG = {
   
   // External Tool URLs
   // Easily override via environment variable VITE_JD2CV_URL if deployed to a custom subdomain/URL
-  jd2cvUrl: import.meta.env.VITE_JD2CV_URL || 'https://jd2cv.vineetsansare.com',
+  jd2cvUrl: import.meta.env.VITE_JD2CV_URL || 'https://toolsby.vineetsansare.com/jd2cv/',
 };

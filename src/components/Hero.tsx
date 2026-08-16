@@ -21,7 +21,7 @@ export const Hero: React.FC = () => {
       <div className="hero-meta">
         <div className="hero-meta-item">
           <span className="hero-meta-dot" />
-          <span>JD2CV Active</span>
+          <span>JD2CV Live</span>
         </div>
 
         <div className="hero-meta-item">

@@ -48,7 +48,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onOpenDetails }) => {
 
         <div className={`status-badge ${tool.status}`}>
           <span className="status-indicator" />
-          {tool.status === 'available' ? 'Available' : 'Coming Soon'}
+          {tool.status === 'available' ? 'LIVE' : 'Work in progress'}
         </div>
       </div>
 
@@ -91,7 +91,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onOpenDetails }) => {
         ) : (
           <button type="button" className="cta-button disabled" disabled>
             <Clock size={15} />
-            <span>Coming Soon</span>
+            <span>Work in progress</span>
           </button>
         )}
 

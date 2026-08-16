@@ -58,12 +58,25 @@ const ToolRouteRedirect: React.FC = () => {
   );
 };
 
+const JD2CVRedirect: React.FC = () => {
+  useEffect(() => {
+    window.location.href = 'https://toolsby.vineetsansare.com/jd2cv/';
+  }, []);
+
+  return (
+    <div className="container" style={{ padding: '5rem 0', textAlign: 'center' }}>
+      <p style={{ color: 'var(--text-secondary)' }}>Opening JD2CV...</p>
+    </div>
+  );
+};
+
 export const App: React.FC = () => {
   return (
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/jd2cv" element={<JD2CVRedirect />} />
           <Route path="/tools/:toolId" element={<ToolRouteRedirect />} />
           <Route path="*" element={<HomePage />} />
         </Routes>

@@ -47,7 +47,7 @@ export const ToolDetailModal: React.FC<ToolDetailModalProps> = ({ tool, onClose 
 
         <div className={`status-badge ${tool.status}`} style={{ alignSelf: 'flex-start' }}>
           <span className="status-indicator" />
-          {tool.status === 'available' ? 'Available' : 'Coming Soon'}
+          {tool.status === 'available' ? 'LIVE' : 'Work in progress'}
         </div>
 
         <p className="tool-description" style={{ fontSize: '1.05rem', lineHeight: '1.6' }}>
@@ -84,7 +84,7 @@ export const ToolDetailModal: React.FC<ToolDetailModalProps> = ({ tool, onClose 
               style={{ width: '100%' }} 
               disabled
             >
-              Under Active Development
+              Work in progress
             </button>
           )}
         </div>
