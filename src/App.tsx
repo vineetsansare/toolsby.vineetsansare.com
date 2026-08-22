@@ -9,6 +9,9 @@ import { ToolDetailModal } from './components/ToolDetailModal';
 import { TOOLS_REGISTRY } from './data/tools';
 import { Tool } from './types/tool';
 
+import JsonStudio from './components/tools/json-formatter/JsonStudio';
+import PdfHub from './components/tools/pdf-toolkit/PdfHub';
+
 const HomePage: React.FC = () => {
   const [activeModalTool, setActiveModalTool] = useState<Tool | null>(null);
 
@@ -38,12 +41,20 @@ const ToolRouteRedirect: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (toolId === 'json-formatter') {
+      navigate('/jsonStudio', { replace: true });
+      return;
+    }
+    if (toolId === 'pdf-toolkit') {
+      navigate('/pdfhub', { replace: true });
+      return;
+    }
+
     const targetTool = TOOLS_REGISTRY.find(t => t.id === toolId);
     if (targetTool) {
       if (targetTool.isExternal) {
         window.location.href = targetTool.url;
       } else {
-        // Native tool location fallback
         navigate('/', { replace: true });
       }
     } else {
@@ -77,6 +88,10 @@ export const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/jd2cv" element={<JD2CVRedirect />} />
+          <Route path="/jsonStudio/*" element={<JsonStudio />} />
+          <Route path="/pdfhub/*" element={<PdfHub />} />
+          <Route path="/json-formatter" element={<JsonStudio />} />
+          <Route path="/pdf-toolkit" element={<PdfHub />} />
           <Route path="/tools/:toolId" element={<ToolRouteRedirect />} />
           <Route path="*" element={<HomePage />} />
         </Routes>

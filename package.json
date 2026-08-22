@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "lucide-react": "^0.475.0",
+    "pdf-lib": "^1.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.1.5"
+    "react-router-dom": "^7.1.5",
+    "yaml": "^2.7.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",
