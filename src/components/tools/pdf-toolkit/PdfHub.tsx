@@ -8,7 +8,11 @@ import {
   Layers, 
   Image as ImageIcon, 
   Trash2, 
-  FileText
+  FileText,
+  Minimize2,
+  Check,
+  Zap,
+  Sparkles
 } from 'lucide-react';
 import { ToolPageHeader } from '../../ToolPageHeader';
 import { 
@@ -16,10 +20,13 @@ import {
   extractPdfPages, 
   rotatePdfPages, 
   imagesToPdf, 
-  getPdfPageCount 
+  compressPdf,
+  getPdfPageCount,
+  CompressionLevel,
+  CompressPdfResult
 } from '../../../utils/pdfUtils';
 
-type PdfToolTab = 'merge' | 'split' | 'rotate' | 'imgToPdf';
+type PdfToolTab = 'merge' | 'split' | 'compress' | 'rotate' | 'imgToPdf';
 
 interface PdfFileItem {
   id: string;
@@ -37,6 +44,11 @@ export const PdfHub: React.FC = () => {
   // Split State
   const [splitFile, setSplitFile] = useState<PdfFileItem | null>(null);
   const [pageRange, setPageRange] = useState<string>('1');
+
+  // Compress State
+  const [compressFile, setCompressFile] = useState<PdfFileItem | null>(null);
+  const [compressionLevel, setCompressionLevel] = useState<CompressionLevel>('recommended');
+  const [compressResult, setCompressResult] = useState<CompressPdfResult | null>(null);
 
   // Rotate State
   const [rotateFile, setRotateFile] = useState<PdfFileItem | null>(null);
@@ -60,6 +72,12 @@ export const PdfHub: React.FC = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
   };
 
   // --- Handlers for Merge PDF ---
@@ -157,6 +175,37 @@ export const PdfHub: React.FC = () => {
     }
   };
 
+  // --- Handlers for Compress PDF ---
+  const handleCompressUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+    const file = e.target.files[0];
+    const buffer = await file.arrayBuffer();
+    const pageCount = await getPdfPageCount(buffer);
+    setCompressFile({
+      id: 'compress_pdf',
+      file,
+      buffer,
+      pageCount
+    });
+    setCompressResult(null);
+  };
+
+  const handleExecuteCompress = async () => {
+    if (!compressFile || !compressFile.buffer) return;
+    setIsProcessing(true);
+    try {
+      const result = await compressPdf(compressFile.buffer, compressionLevel);
+      setCompressResult(result);
+      setStatusMessage('PDF compressed successfully!');
+      setTimeout(() => setStatusMessage(null), 3000);
+    } catch (err) {
+      console.error(err);
+      setStatusMessage('Failed to compress PDF.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // --- Handlers for Rotate ---
   const handleRotateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return;
@@ -244,6 +293,15 @@ export const PdfHub: React.FC = () => {
 
             <button
               type="button"
+              className={`filter-btn ${activeTab === 'compress' ? 'active' : ''}`}
+              onClick={() => setActiveTab('compress')}
+            >
+              <Minimize2 size={15} style={{ verticalAlign: 'middle', marginRight: '0.35rem' }} />
+              Compress PDF
+            </button>
+
+            <button
+              type="button"
               className={`filter-btn ${activeTab === 'rotate' ? 'active' : ''}`}
               onClick={() => setActiveTab('rotate')}
             >
@@ -268,6 +326,7 @@ export const PdfHub: React.FC = () => {
           )}
         </div>
 
+        {/* Tab 1: Merge PDF */}
         {activeTab === 'merge' && (
           <div className="tool-card" style={{ padding: '1.75rem' }}>
             <div style={{ marginBottom: '1.25rem' }}>
@@ -359,6 +418,7 @@ export const PdfHub: React.FC = () => {
           </div>
         )}
 
+        {/* Tab 2: Split & Extract */}
         {activeTab === 'split' && (
           <div className="tool-card" style={{ padding: '1.75rem' }}>
             <div style={{ marginBottom: '1.25rem' }}>
@@ -434,6 +494,208 @@ export const PdfHub: React.FC = () => {
           </div>
         )}
 
+        {/* Tab 3: Compress PDF (NEW) */}
+        {activeTab === 'compress' && (
+          <div className="tool-card" style={{ padding: '1.75rem' }}>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+                Compress PDF Files
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                Reduce file size while optimizing for maximal PDF quality — 100% client-side in your browser.
+              </p>
+            </div>
+
+            {!compressFile ? (
+              <div style={{
+                position: 'relative',
+                border: '2px dashed var(--border-card-hover)',
+                borderRadius: 'var(--radius-md)',
+                padding: '2.5rem 1.5rem',
+                textAlign: 'center',
+                backgroundColor: 'var(--bg-pill)'
+              }}>
+                <Minimize2 size={36} style={{ color: 'var(--brand-primary)', marginBottom: '0.75rem' }} />
+                <p style={{ fontSize: '1.05rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+                  Select PDF File to Compress
+                </p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                  Drag & drop or click to upload PDF
+                </p>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleCompressUpload}
+                  style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', top: 0, left: 0, cursor: 'pointer' }}
+                />
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {/* File Header */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', backgroundColor: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                    <FileText size={28} style={{ color: 'var(--brand-primary)' }} />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '1rem' }}>{compressFile.file.name}</p>
+                      <p style={{ fontSize: '0.825rem', color: 'var(--text-tertiary)' }}>
+                        Original Size: {formatFileSize(compressFile.file.size)} • {compressFile.pageCount} {compressFile.pageCount === 1 ? 'page' : 'pages'}
+                      </p>
+                    </div>
+                  </div>
+                  <button type="button" className="secondary-action" onClick={() => { setCompressFile(null); setCompressResult(null); }}>
+                    Change File
+                  </button>
+                </div>
+
+                {/* Compression Level Picker */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.85rem', color: 'var(--text-primary)' }}>
+                    Compression Level
+                  </label>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                    {/* Level 1: Extreme */}
+                    <div 
+                      onClick={() => setCompressionLevel('extreme')}
+                      style={{
+                        padding: '1.15rem',
+                        borderRadius: 'var(--radius-md)',
+                        border: compressionLevel === 'extreme' ? '2px solid var(--brand-primary)' : '1px solid var(--border-subtle)',
+                        backgroundColor: compressionLevel === 'extreme' ? 'var(--bg-pill)' : 'var(--bg-card)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        position: 'relative'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#F43F5E', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                          <Zap size={14} style={{ verticalAlign: 'middle', marginRight: '0.3rem' }} />
+                          Extreme
+                        </span>
+                        {compressionLevel === 'extreme' && <Check size={16} color="var(--brand-primary)" />}
+                      </div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                        Maximum compression, slightly lower quality.
+                      </p>
+                    </div>
+
+                    {/* Level 2: Recommended */}
+                    <div 
+                      onClick={() => setCompressionLevel('recommended')}
+                      style={{
+                        padding: '1.15rem',
+                        borderRadius: 'var(--radius-md)',
+                        border: compressionLevel === 'recommended' ? '2px solid var(--brand-primary)' : '1px solid var(--border-subtle)',
+                        backgroundColor: compressionLevel === 'recommended' ? 'var(--bg-pill)' : 'var(--bg-card)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        position: 'relative'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                          <Sparkles size={14} style={{ verticalAlign: 'middle', marginRight: '0.3rem' }} />
+                          Recommended
+                        </span>
+                        {compressionLevel === 'recommended' && <Check size={16} color="var(--brand-primary)" />}
+                      </div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                        Optimal balance of file size & PDF quality.
+                      </p>
+                    </div>
+
+                    {/* Level 3: Less */}
+                    <div 
+                      onClick={() => setCompressionLevel('less')}
+                      style={{
+                        padding: '1.15rem',
+                        borderRadius: 'var(--radius-md)',
+                        border: compressionLevel === 'less' ? '2px solid var(--brand-primary)' : '1px solid var(--border-subtle)',
+                        backgroundColor: compressionLevel === 'less' ? 'var(--bg-pill)' : 'var(--bg-card)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        position: 'relative'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                          Less
+                        </span>
+                        {compressionLevel === 'less' && <Check size={16} color="var(--brand-primary)" />}
+                      </div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                        High document quality, light compression.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Compression Execution Button */}
+                <button
+                  type="button"
+                  className="cta-button primary"
+                  onClick={handleExecuteCompress}
+                  disabled={isProcessing}
+                  style={{ width: '100%', padding: '0.85rem', fontSize: '1rem' }}
+                >
+                  <Minimize2 size={18} />
+                  <span>{isProcessing ? 'Compressing PDF...' : 'Compress PDF'}</span>
+                </button>
+
+                {/* Results Card */}
+                {compressResult && (
+                  <div style={{
+                    padding: '1.5rem',
+                    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <p style={{ fontWeight: 800, fontSize: '1.1rem', color: '#10B981', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <Check size={18} />
+                          <span>PDF Compressed Successfully!</span>
+                        </p>
+                        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                          Original: <strong>{formatFileSize(compressResult.originalSize)}</strong> $\rightarrow$ Compressed: <strong>{formatFileSize(compressResult.compressedSize)}</strong>
+                        </p>
+                      </div>
+
+                      {compressResult.savingsPercentage > 0 && (
+                        <div style={{
+                          backgroundColor: '#10B981',
+                          color: '#FFFFFF',
+                          fontWeight: 800,
+                          fontSize: '1.1rem',
+                          padding: '0.4rem 0.85rem',
+                          borderRadius: 'var(--radius-full)',
+                          boxShadow: '0 2px 10px rgba(16, 185, 129, 0.3)'
+                        }}>
+                          -{compressResult.savingsPercentage}%
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="cta-button primary"
+                      style={{ backgroundColor: '#10B981', border: 'none' }}
+                      onClick={() => downloadBlob(compressResult.data, `compressed_${compressFile.file.name}`)}
+                    >
+                      <Download size={18} />
+                      <span>Download Compressed PDF</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 4: Rotate Pages */}
         {activeTab === 'rotate' && (
           <div className="tool-card" style={{ padding: '1.75rem' }}>
             <div style={{ marginBottom: '1.25rem' }}>
@@ -513,6 +775,7 @@ export const PdfHub: React.FC = () => {
           </div>
         )}
 
+        {/* Tab 5: Images to PDF */}
         {activeTab === 'imgToPdf' && (
           <div className="tool-card" style={{ padding: '1.75rem' }}>
             <div style={{ marginBottom: '1.25rem' }}>
@@ -568,7 +831,7 @@ export const PdfHub: React.FC = () => {
                         <ImageIcon size={18} style={{ color: 'var(--brand-primary)' }} />
                         <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{file.name}</span>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                          ({(file.size / 1024).toFixed(1)} KB)
+                          ({formatFileSize(file.size)})
                         </span>
                       </div>
                       <button

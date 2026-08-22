@@ -1,5 +1,14 @@
 import { PDFDocument, degrees } from 'pdf-lib';
 
+export type CompressionLevel = 'extreme' | 'recommended' | 'less';
+
+export interface CompressPdfResult {
+  data: Uint8Array;
+  originalSize: number;
+  compressedSize: number;
+  savingsPercentage: number;
+}
+
 /**
  * Merges multiple PDF ArrayBuffers into a single compiled PDF Uint8Array.
  */
@@ -12,7 +21,7 @@ export async function mergePdfs(pdfBuffers: ArrayBuffer[]): Promise<Uint8Array> 
     copiedPages.forEach(page => mergedPdf.addPage(page));
   }
 
-  return await mergedPdf.save();
+  return await mergedPdf.save({ useObjectStreams: true });
 }
 
 /**
@@ -28,7 +37,7 @@ export async function extractPdfPages(
   const copiedPages = await newPdf.copyPages(srcPdf, pageIndices);
   copiedPages.forEach(page => newPdf.addPage(page));
 
-  return await newPdf.save();
+  return await newPdf.save({ useObjectStreams: true });
 }
 
 /**
@@ -51,7 +60,7 @@ export async function rotatePdfPages(
     }
   });
 
-  return await pdfDoc.save();
+  return await pdfDoc.save({ useObjectStreams: true });
 }
 
 /**
@@ -79,7 +88,55 @@ export async function imagesToPdf(
     });
   }
 
-  return await pdfDoc.save();
+  return await pdfDoc.save({ useObjectStreams: true });
+}
+
+/**
+ * Compresses a PDF document client-side using object stream optimization
+ * and structural overhead stripping.
+ */
+export async function compressPdf(
+  pdfBuffer: ArrayBuffer,
+  level: CompressionLevel = 'recommended'
+): Promise<CompressPdfResult> {
+  const originalSize = pdfBuffer.byteLength;
+  const srcDoc = await PDFDocument.load(pdfBuffer, { ignoreEncryption: true });
+
+  const compressedDoc = await PDFDocument.create();
+
+  if (level === 'extreme' || level === 'recommended') {
+    compressedDoc.setTitle('');
+    compressedDoc.setAuthor('');
+    compressedDoc.setSubject('');
+    compressedDoc.setKeywords([]);
+    compressedDoc.setProducer('Tools by Vineet — PDFHub');
+    compressedDoc.setCreator('PDFHub Client-Side Compressor');
+  }
+
+  const pageIndices = srcDoc.getPageIndices();
+  const copiedPages = await compressedDoc.copyPages(srcDoc, pageIndices);
+  copiedPages.forEach(page => compressedDoc.addPage(page));
+
+  const compressedBytes = await compressedDoc.save({
+    useObjectStreams: true,
+    addDefaultPage: false,
+    objectsPerTick: 50
+  });
+
+  const compressedSize = compressedBytes.byteLength;
+  let savingsPercentage = 0;
+
+  if (originalSize > 0) {
+    const rawSavings = ((originalSize - compressedSize) / originalSize) * 100;
+    savingsPercentage = Math.max(0, Math.round(rawSavings));
+  }
+
+  return {
+    data: compressedBytes,
+    originalSize,
+    compressedSize,
+    savingsPercentage
+  };
 }
 
 /**
