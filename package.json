@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && cp dist/index.html dist/404.html && mkdir -p dist/jsonStudio dist/pdfhub dist/json-formatter dist/pdf-toolkit && cp dist/index.html dist/jsonStudio/index.html && cp dist/index.html dist/pdfhub/index.html && cp dist/index.html dist/json-formatter/index.html && cp dist/index.html dist/pdf-toolkit/index.html",
+    "build": "tsc && vite build && cp dist/index.html dist/404.html && mkdir -p dist/jsonStudio dist/pdfhub dist/prompt-craft dist/prompt-studio dist/json-formatter dist/pdf-toolkit && cp dist/index.html dist/jsonStudio/index.html && cp dist/index.html dist/pdfhub/index.html && cp dist/index.html dist/prompt-craft/index.html && cp dist/index.html dist/prompt-studio/index.html && cp dist/index.html dist/json-formatter/index.html && cp dist/index.html dist/pdf-toolkit/index.html",
     "lint": "tsc --noEmit",
     "preview": "vite preview"
   },

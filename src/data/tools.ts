@@ -50,14 +50,16 @@ export const TOOLS_REGISTRY: Tool[] = [
   {
     id: 'prompt-studio',
     name: 'LLM Prompt Craft',
-    shortDescription: 'Interactive workbench for crafting, testing, and versioning structured prompts across multiple LLM providers.',
+    shortDescription: 'Interactive workbench for crafting, testing, and exporting structured prompts across multiple LLM providers.',
+    longDescription: 'LLM Prompt Craft is an interactive browser workspace to design system instructions, test {{variable}} prompt templates, run live model execution via Gemini/OpenAI API or Demo Sandbox, and export production code snippets in Python, TypeScript, and cURL.',
     category: 'Productivity',
-    status: 'coming-soon',
-    url: '/tools/prompt-studio',
-    isExternal: false,
+    status: 'available',
+    url: 'https://toolsby.vineetsansare.com/prompt-craft/',
+    isExternal: true,
     iconName: 'Sparkles',
-    featured: false,
-    tags: ['AI', 'Prompts', 'Productivity'],
+    featured: true,
+    tags: ['AI', 'Prompts', 'Productivity', 'Code Exporter'],
+    version: 'v1.0',
     accentColor: '#8B5CF6'
   }
 ];
