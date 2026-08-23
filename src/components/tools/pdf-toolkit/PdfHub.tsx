@@ -268,7 +268,7 @@ export const PdfHub: React.FC = () => {
 
   return (
     <>
-      <ToolPageHeader title="PDFHub — PDF Utility Suite" category="Utilities" />
+      <ToolPageHeader title="PDF Hub" category="Utilities" />
 
       <main className="container" style={{ paddingBottom: '3rem' }}>
         <div className="tools-controls" style={{ marginBottom: '1.5rem' }}>

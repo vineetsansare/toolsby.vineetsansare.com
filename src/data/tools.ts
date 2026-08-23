@@ -18,6 +18,21 @@ export const TOOLS_REGISTRY: Tool[] = [
     accentColor: '#6366F1'
   },
   {
+    id: 'pdf-toolkit',
+    name: 'PDF Hub',
+    shortDescription: 'Fast, client-side PDF merger, page extractor, compressor, rotator, and image-to-PDF converter with zero server data upload.',
+    longDescription: 'PDF Hub is a 100% private, client-side PDF toolkit inspired by ilovepdf. Combine multiple PDFs, extract page ranges, compress PDF file size, rotate pages, or convert JPG/PNG images to PDF without uploading files to any external server.',
+    category: 'Utilities',
+    status: 'available',
+    url: 'https://toolsby.vineetsansare.com/pdfhub/',
+    isExternal: true,
+    iconName: 'FileSpreadsheet',
+    featured: true,
+    tags: ['PDF', 'Document Tools', 'Client-side', 'Merge & Split'],
+    version: 'v1.0',
+    accentColor: '#EC4899'
+  },
+  {
     id: 'json-formatter',
     name: 'JSON Studio & Formatter',
     shortDescription: 'High-performance offline JSON validator, formatter, schema checker, and tree inspector built for modern web workflows.',
@@ -31,21 +46,6 @@ export const TOOLS_REGISTRY: Tool[] = [
     tags: ['JSON', 'Formatter', 'Developer Tools', 'Client-side'],
     version: 'v1.0',
     accentColor: '#10B981'
-  },
-  {
-    id: 'pdf-toolkit',
-    name: 'PDF Utility Suite',
-    shortDescription: 'Fast, client-side PDF merger, page extractor, rotator, and image-to-PDF converter with zero server data upload.',
-    longDescription: 'PDFHub is a 100% private, client-side PDF toolkit inspired by ilovepdf. Combine multiple PDFs, extract page ranges, rotate pages, or convert JPG/PNG images to PDF without uploading files to any external server.',
-    category: 'Utilities',
-    status: 'available',
-    url: 'https://toolsby.vineetsansare.com/pdfhub/',
-    isExternal: true,
-    iconName: 'FileSpreadsheet',
-    featured: true,
-    tags: ['PDF', 'Document Tools', 'Client-side', 'Merge & Split'],
-    version: 'v1.0',
-    accentColor: '#EC4899'
   },
   {
     id: 'prompt-studio',
