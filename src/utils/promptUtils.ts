@@ -349,12 +349,29 @@ export async function executePrompt(
   }
 
   // 3. Demo Simulation Mode (when no API key is provided)
-  await new Promise(resolve => setTimeout(resolve, 800)); // Simulate realistic network delay
+  await new Promise(resolve => setTimeout(resolve, 600));
   const latencyMs = Date.now() - startTime;
 
+  const combinedText = (systemInstruction + ' ' + fullPrompt).toLowerCase();
   let simulatedOutput = '';
-  if (fullPrompt.toLowerCase().includes('review') || fullPrompt.toLowerCase().includes('code')) {
-    simulatedOutput = `### 🔍 Code Review & Optimization Summary
+
+  if (combinedText.includes('resume') || combinedText.includes('career') || combinedText.includes('target role')) {
+    simulatedOutput = `### 📝 Executive Resume & Cover Letter Output (Demo Sandbox)
+
+#### 1. Optimized Accomplishment Bullet Points (Google XYZ Formula):
+- **Architected high-concurrency micro-frontend platform** handling 100k+ daily transactions, accelerating page delivery speed by **35%** across distributed engineering teams.
+- **Orchestrated end-to-end CI/CD delivery pipeline** for core web services, cutting deployment regression incidents by **40%** while enforcing strict ATS keyword compliance.
+- **Mentored 8 cross-functional software engineers** in TypeScript and modern architectural patterns, boosting sprint velocity by **25%**.
+
+#### 2. Executive Cover Letter:
+Dear Hiring Manager,
+
+I am writing to express my enthusiastic interest in the Senior Staff Engineer position. With extensive experience in high-concurrency architectures and micro-frontends, I have consistently delivered resilient software systems that drive measurable business impact. I look forward to contributing my technical leadership to your team.
+
+Sincerely,
+Candidate`;
+  } else if (combinedText.includes('review') || combinedText.includes('code_snippet') || combinedText.includes('refactor')) {
+    simulatedOutput = `### 🔍 Code Review & Optimization Summary (Demo Sandbox)
 
 #### 1. Identified Issues:
 - **Missing Error Handling**: Network failures in \`fetch()\` are not caught, which could crash caller routines.
@@ -382,18 +399,34 @@ export async function fetchData<T>(url: string): Promise<FetchResponse<T>> {
   }
 }
 \`\`\``;
-  } else if (fullPrompt.toLowerCase().includes('json') || fullPrompt.toLowerCase().includes('schema')) {
+  } else if (combinedText.includes('json') || combinedText.includes('schema') || combinedText.includes('unstructured')) {
     simulatedOutput = `{\n  "name": "Vineet Sansare",\n  "title": "Tech Lead & Senior Software Engineer",\n  "location": "Dubai, UAE",\n  "skills": ["React", "TypeScript", "Node.js", "AI Integrations", "Swift"],\n  "contact": {\n    "email": "contact@vineetsansare.com"\n  }\n}`;
+  } else if (combinedText.includes('product') || combinedText.includes('launch') || combinedText.includes('marketing') || combinedText.includes('social')) {
+    simulatedOutput = `### 📣 Product Launch Copy (Demo Sandbox)
+
+#### 1. Short Twitter / X Thread Starter:
+🚀 Excited to launch **Tools by Vineet** — a 100% free, client-side developer toolkit built with React & TypeScript! Zero server tracking, instant performance.
+
+Check it out: https://toolsby.vineetsansare.com 🧵👇
+
+#### 2. LinkedIn Launch Post:
+Thrilled to introduce **Tools by Vineet** — a curated suite of privacy-first software tools built for modern developers and creators.
+
+✨ Key Highlights:
+- **JD2CV**: AI-powered resume tailoring
+- **JSON Studio**: Offline tree inspector & schema validator
+- **PDF Hub**: Client-side PDF merger, extractor & compressor
+
+Try it live today: https://toolsby.vineetsansare.com`;
   } else {
-    simulatedOutput = `### 🌟 Generated Output Response
+    simulatedOutput = `### 🌟 Generated Response Output (Demo Sandbox)
 
-Here is the structured optimization based on your system instructions and target variable inputs:
+Here is the structured output based on your system instructions and template variable inputs:
 
-1. **Core Insight**: The provided prompt template effectively isolates key intent parameters.
-2. **Action Item**: Verify system instruction alignment against target audience domain knowledge.
-3. **Execution Quality**: High coherence, clear formatting, and 100% adherence to specified response parameters.
+1. **Processed Variables**: Successfully substituted template placeholders with provided values.
+2. **Quality Assessment**: High coherence and formatting adherence.
 
-*(Note: Operating in Demo Playground Mode. Add your Gemini or OpenAI API Key in settings for live API generation!)*`;
+*(Note: Running in Demo Sandbox Mode. Add your Gemini or OpenAI API Key in Model Settings for live API responses!)*`;
   }
 
   const promptTokens = Math.round((systemInstruction.length + fullPrompt.length) / 4);
