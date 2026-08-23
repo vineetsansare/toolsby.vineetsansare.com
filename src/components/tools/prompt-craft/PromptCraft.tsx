@@ -11,7 +11,12 @@ import {
   Save, 
   Trash2, 
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  HelpCircle,
+  X,
+  ArrowRight,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { ToolPageHeader } from '../../ToolPageHeader';
 import { 
@@ -28,6 +33,9 @@ import {
 export const PromptCraft: React.FC = () => {
   // Guide Panel Collapsible State
   const [showGuide, setShowGuide] = useState(true);
+
+  // Use Case Modal State
+  const [showUseCaseModal, setShowUseCaseModal] = useState(false);
 
   // Template State
   const [selectedPresetId, setSelectedPresetId] = useState<string>('code-reviewer');
@@ -160,18 +168,40 @@ export const PromptCraft: React.FC = () => {
       <ToolPageHeader title="LLM Prompt Craft" category="Productivity" />
 
       <main className="container" style={{ paddingBottom: '3rem' }}>
+        
         {/* Quick Start Info Guide Section */}
         <div className="tool-card" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem', border: '1px solid var(--border-card-hover)', backgroundColor: 'var(--bg-pill)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }} onClick={() => setShowGuide(!showGuide)}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <BookOpen size={20} color="var(--brand-primary)" />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div 
+              style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer', flex: 1 }} 
+              onClick={() => setShowGuide(!showGuide)}
+            >
+              <BookOpen size={20} style={{ color: 'var(--brand-primary)' }} />
               <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>
                 🚀 Quick Start Guide — How to Use LLM Prompt Craft
               </h3>
             </div>
-            <button type="button" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-              {showGuide ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className="secondary-action"
+                onClick={() => setShowUseCaseModal(true)}
+                style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem', borderColor: 'var(--brand-primary)', color: 'var(--brand-primary)' }}
+                title="View Real-World Use Case Example & Workflow"
+              >
+                <HelpCircle size={15} />
+                <span>💡 Why Use This? (Real-World Flow)</span>
+              </button>
+
+              <button 
+                type="button" 
+                onClick={() => setShowGuide(!showGuide)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+              >
+                {showGuide ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+            </div>
           </div>
 
           {showGuide && (
@@ -206,6 +236,158 @@ export const PromptCraft: React.FC = () => {
           )}
         </div>
 
+        {/* Real-World Use Case & Flowchart Modal */}
+        {showUseCaseModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.75)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem'
+          }}>
+            <div className="tool-card" style={{
+              maxWidth: '850px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              padding: '2rem',
+              position: 'relative',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+              border: '1px solid var(--border-card-hover)'
+            }}>
+              <button
+                type="button"
+                onClick={() => setShowUseCaseModal(false)}
+                style={{
+                  position: 'absolute',
+                  top: '1.25rem',
+                  right: '1.25rem',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-tertiary)',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={22} />
+              </button>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--brand-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Practical Developer Walkthrough
+                </span>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '0.25rem' }}>
+                  💡 Why & When to Use LLM Prompt Craft?
+                </h2>
+                <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginTop: '0.4rem', lineHeight: '1.5' }}>
+                  Suppose you are building an <strong>AI Feature for your application</strong> (e.g., an automated Customer Support Responder or Resume Tailor).
+                </p>
+              </div>
+
+              {/* Visual SVG Flowchart */}
+              <div style={{ padding: '1rem', backgroundColor: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', marginBottom: '1.75rem', border: '1px solid var(--border-subtle)' }}>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--brand-primary)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+                  ⚡ The 4-Step Prompt Engineering Flowchart
+                </h4>
+
+                <svg viewBox="0 0 800 160" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto' }}>
+                  {/* Step 1 */}
+                  <rect x="10" y="15" width="165" height="130" rx="10" fill="var(--bg-card)" stroke="var(--border-card-hover)" strokeWidth="1.5" />
+                  <text x="92" y="45" textAnchor="middle" fill="var(--brand-primary)" fontWeight="bold" fontSize="13">1. Draft Template</text>
+                  <text x="92" y="75" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">Define System Role &</text>
+                  <text x="92" y="95" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">{"{{variable}}"} inputs</text>
+                  <rect x="25" y="110" width="135" height="22" rx="5" fill="var(--bg-pill)" />
+                  <text x="92" y="125" textAnchor="middle" fill="var(--brand-primary)" fontSize="10" fontWeight="700">Write Prompt</text>
+
+                  {/* Arrow 1 */}
+                  <path d="M180 80 H200" stroke="var(--brand-primary)" strokeWidth="2" strokeDasharray="4 4" />
+                  <polygon points="205,80 198,76 198,84" fill="var(--brand-primary)" />
+
+                  {/* Step 2 */}
+                  <rect x="210" y="15" width="165" height="130" rx="10" fill="var(--bg-card)" stroke="var(--border-card-hover)" strokeWidth="1.5" />
+                  <text x="292" y="45" textAnchor="middle" fill="var(--brand-primary)" fontWeight="bold" fontSize="13">2. Test Inputs</text>
+                  <text x="292" y="75" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">Fill test values &</text>
+                  <text x="292" y="95" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">tweak temperature</text>
+                  <rect x="225" y="110" width="135" height="22" rx="5" fill="var(--bg-pill)" />
+                  <text x="292" y="125" textAnchor="middle" fill="var(--brand-primary)" fontSize="10" fontWeight="700">Live Sandbox</text>
+
+                  {/* Arrow 2 */}
+                  <path d="M380 80 H400" stroke="var(--brand-primary)" strokeWidth="2" strokeDasharray="4 4" />
+                  <polygon points="405,80 398,76 398,84" fill="var(--brand-primary)" />
+
+                  {/* Step 3 */}
+                  <rect x="410" y="15" width="165" height="130" rx="10" fill="var(--bg-card)" stroke="var(--border-card-hover)" strokeWidth="1.5" />
+                  <text x="492" y="45" textAnchor="middle" fill="var(--brand-primary)" fontWeight="bold" fontSize="13">3. Compare Models</text>
+                  <text x="492" y="75" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">Gemini vs GPT-4</text>
+                  <text x="492" y="95" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">latency & token cost</text>
+                  <rect x="425" y="110" width="135" height="22" rx="5" fill="var(--bg-pill)" />
+                  <text x="492" y="125" textAnchor="middle" fill="var(--brand-primary)" fontSize="10" fontWeight="700">Inspect Tokens</text>
+
+                  {/* Arrow 3 */}
+                  <path d="M580 80 H600" stroke="var(--brand-primary)" strokeWidth="2" strokeDasharray="4 4" />
+                  <polygon points="605,80 598,76 598,84" fill="var(--brand-primary)" />
+
+                  {/* Step 4 */}
+                  <rect x="610" y="15" width="175" height="130" rx="10" fill="rgba(16,185,129,0.12)" stroke="#10B981" strokeWidth="1.5" />
+                  <text x="697" y="45" textAnchor="middle" fill="#10B981" fontWeight="bold" fontSize="13">4. 1-Click Export</text>
+                  <text x="697" y="75" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">Copy Python / TS code</text>
+                  <text x="697" y="95" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">straight into app</text>
+                  <rect x="630" y="110" width="135" height="22" rx="5" fill="#10B981" />
+                  <text x="697" y="125" textAnchor="middle" fill="#FFFFFF" fontSize="10" fontWeight="800">Paste in Code 🎉</text>
+                </svg>
+              </div>
+
+              {/* Before vs After Comparison Table */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
+                {/* Without Prompt Craft */}
+                <div style={{ padding: '1.15rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(244, 63, 94, 0.06)', border: '1px solid rgba(244, 63, 94, 0.2)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.65rem', color: '#F43F5E', fontWeight: 700, fontSize: '0.9rem' }}>
+                    <XCircle size={18} />
+                    <span>Without Prompt Craft (The Slow Way)</span>
+                  </div>
+                  <ul style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', paddingLeft: '1.1rem', lineHeight: '1.6' }}>
+                    <li>Hardcode prompt strings inside backend server code.</li>
+                    <li>Restart app server every single time you tweak a sentence.</li>
+                    <li>Guess token usage and response latency blindly.</li>
+                    <li>Wastes hours of manual developer trial-and-error.</li>
+                  </ul>
+                </div>
+
+                {/* With Prompt Craft */}
+                <div style={{ padding: '1.15rem', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(16, 185, 129, 0.06)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.65rem', color: '#10B981', fontWeight: 700, fontSize: '0.9rem' }}>
+                    <CheckCircle2 size={18} />
+                    <span>With LLM Prompt Craft (The Fast Way)</span>
+                  </div>
+                  <ul style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', paddingLeft: '1.1rem', lineHeight: '1.6' }}>
+                    <li>Test system instructions & variables visually in 3 seconds.</li>
+                    <li>Run live sandboxes across Gemini & OpenAI side-by-side.</li>
+                    <li>See exact token counts, latency (ms), and cost estimations.</li>
+                    <li>Click <strong>Copy Python/TypeScript</strong> & paste into production!</li>
+                  </ul>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="cta-button primary"
+                onClick={() => setShowUseCaseModal(false)}
+                style={{ width: '100%', padding: '0.85rem' }}
+              >
+                <span>Got It! Start Engineering Prompts</span>
+                <ArrowRight size={18} />
+              </button>
+
+            </div>
+          </div>
+        )}
+
         {/* Main Grid: Left Column Editor | Right Column Config & Output */}
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '1.5rem' }}>
           
@@ -216,7 +398,7 @@ export const PromptCraft: React.FC = () => {
             <div className="tool-card" style={{ padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                 <label style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Sparkles size={16} color="var(--brand-primary)" />
+                  <Sparkles size={16} style={{ color: 'var(--brand-primary)' }} />
                   <span>Preset Templates</span>
                 </label>
               </div>
@@ -357,7 +539,7 @@ export const PromptCraft: React.FC = () => {
             {/* Model & Provider Settings */}
             <div className="tool-card" style={{ padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <Settings size={18} color="var(--brand-primary)" />
+                <Settings size={18} style={{ color: 'var(--brand-primary)' }} />
                 <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Model & Provider Settings</h3>
               </div>
 
@@ -401,7 +583,7 @@ export const PromptCraft: React.FC = () => {
                 {config.provider !== 'demo' && (
                   <div>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem' }}>
-                      <Key size={14} color="var(--brand-primary)" />
+                      <Key size={14} style={{ color: 'var(--brand-primary)' }} />
                       <span>{config.provider === 'gemini' ? 'Gemini' : 'OpenAI'} API Key (BYOK):</span>
                     </label>
                     <div style={{ position: 'relative' }}>
@@ -547,7 +729,7 @@ export const PromptCraft: React.FC = () => {
             <div className="tool-card" style={{ padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Code size={18} color="var(--brand-primary)" />
+                  <Code size={18} style={{ color: 'var(--brand-primary)' }} />
                   <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Code Exporter</h3>
                 </div>
 
