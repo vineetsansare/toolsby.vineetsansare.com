@@ -202,8 +202,8 @@ export const DisplayPicFrameMaker: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Grid: Controls Left | Live Canvas Preview Right */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 0.9fr)', gap: '1.5rem' }}>
+        {/* Main Layout Grid: Responsive 2-Column on Desktop | Stacked with Preview at Top on Mobile */}
+        <div className="frame-maker-layout">
           
           {/* LEFT COLUMN: Customization Controls */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -401,7 +401,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
               </div>
             </div>
 
-            {/* 3. Photo Zoom & Alignment Controls (With Manual Text Field Inputs!) */}
+            {/* 3. Photo Zoom & Alignment Controls */}
             <div className="tool-card" style={{ padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -515,11 +515,11 @@ export const DisplayPicFrameMaker: React.FC = () => {
 
           </div>
 
-          {/* RIGHT COLUMN: Live Canvas Preview & Download */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* RIGHT COLUMN: Live Canvas Preview & Download (Centered & Responsive) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%' }}>
             
-            <div className="tool-card" style={{ padding: '1.5rem', textAlign: 'center' }}>
-              <div style={{ marginBottom: '1.25rem' }}>
+            <div className="tool-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', width: '100%' }}>
+              <div style={{ marginBottom: '1.25rem', width: '100%' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                   Live Profile Frame Preview
                 </h3>
@@ -528,16 +528,20 @@ export const DisplayPicFrameMaker: React.FC = () => {
                 </p>
               </div>
 
-              {/* Canvas Container with Mouse & Touch Event Handlers */}
+              {/* Perfectly Centered Canvas Container Box */}
               <div style={{
-                position: 'relative',
-                display: 'inline-block',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                maxWidth: '360px',
+                margin: '0 auto 1.25rem auto',
                 padding: '0.85rem',
                 backgroundColor: 'var(--bg-elevated)',
                 borderRadius: 'var(--radius-lg)',
                 border: '1px solid var(--border-subtle)',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-                marginBottom: '1.25rem',
                 userSelect: 'none'
               }}>
                 <canvas
@@ -551,10 +555,11 @@ export const DisplayPicFrameMaker: React.FC = () => {
                   onTouchEnd={handleTouchEnd}
                   onWheel={handleWheel}
                   style={{
-                    width: '320px',
-                    height: '320px',
+                    width: 'min(320px, 75vw)',
+                    height: 'min(320px, 75vw)',
                     borderRadius: '50%',
                     display: 'block',
+                    margin: '0 auto',
                     backgroundColor: '#E5E7EB',
                     cursor: imageObj ? (isDragging ? 'grabbing' : 'grab') : 'default',
                     touchAction: 'none'
@@ -569,6 +574,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  textAlign: 'center',
                   gap: '0.35rem'
                 }}>
                   <Move size={14} />

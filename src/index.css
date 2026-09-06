@@ -822,6 +822,21 @@ main {
   }
 }
 
+/* Display Picture Frame Maker Responsive Layout */
+.frame-maker-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .frame-maker-layout {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 680px) {
   .tools-grid {
     grid-template-columns: 1fr;
