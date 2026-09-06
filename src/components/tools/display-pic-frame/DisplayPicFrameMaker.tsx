@@ -8,7 +8,8 @@ import {
   RefreshCw, 
   Sliders, 
   Image as ImageIcon,
-  Move
+  Move,
+  RotateCw
 } from 'lucide-react';
 import { ToolPageHeader } from '../../ToolPageHeader';
 import { 
@@ -35,6 +36,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
     textColor: '#FFFFFF',
     badgeStyle: 'gradient',
     gradientPreset: 'Emerald',
+    arcRotation: 180, // Default 180° = 9 o'clock position
     zoom: 1.0,
     offsetX: 0,
     offsetY: 0,
@@ -256,19 +258,62 @@ export const DisplayPicFrameMaker: React.FC = () => {
               </h3>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {/* Arc Text Input */}
+                {/* Arc Text Input (Supports long text up to 75 chars for full 360° circle growth!) */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem' }}>
-                    Badge Text (Curved Arc Text):
-                  </label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+                      Badge Text (Grows from short arc to full 360° circle):
+                    </label>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>
+                      {options.arcText.length}/75
+                    </span>
+                  </div>
                   <input
                     type="text"
+                    maxLength={75}
                     className="search-input"
                     value={options.arcText}
                     onChange={e => setOptions(prev => ({ ...prev, arcText: e.target.value }))}
-                    placeholder="e.g. #OPENTOWORK, #HIRING..."
+                    placeholder="e.g. #OPENTOWORK or #OPENTOWORKINUSACANADASINGAPORE..."
                     style={{ borderRadius: 'var(--radius-sm)', paddingLeft: '0.75rem' }}
                   />
+                </div>
+
+                {/* Badge Start Position / Rotation Angle Slider & Input */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <RotateCw size={14} style={{ color: 'var(--brand-primary)' }} />
+                      <span>Badge Start Angle / Position:</span>
+                    </span>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                      <input
+                        type="number"
+                        min="0"
+                        max="360"
+                        className="search-input"
+                        value={options.arcRotation}
+                        onChange={e => setOptions(prev => ({ ...prev, arcRotation: (parseInt(e.target.value) || 0) % 360 }))}
+                        style={{ width: '60px', padding: '0.2rem 0.4rem', fontSize: '0.78rem', borderRadius: '4px', textAlign: 'center' }}
+                      />
+                      <span>°</span>
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="360"
+                    value={options.arcRotation}
+                    onChange={e => setOptions(prev => ({ ...prev, arcRotation: parseInt(e.target.value) }))}
+                    style={{ width: '100%', cursor: 'pointer' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-tertiary)', marginTop: '0.2rem' }}>
+                    <span>0° (Right)</span>
+                    <span>90° (Bottom)</span>
+                    <span>180° (9 o'clock Default)</span>
+                    <span>270° (Top)</span>
+                  </div>
                 </div>
 
                 {/* Badge Style Selector */}

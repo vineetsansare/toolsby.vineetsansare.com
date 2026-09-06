@@ -4,6 +4,7 @@ export interface FrameOptions {
   textColor: string;
   badgeStyle: 'solid' | 'gradient' | 'outline';
   gradientPreset?: string;
+  arcRotation: number; // Start position in degrees (0 to 360, default 180 = 9 o'clock)
   zoom: number;
   offsetX: number;
   offsetY: number;
@@ -96,33 +97,40 @@ export function drawProfileFrame(
     ctx.restore();
   }
 
-  // 3. Draw Arc Ribbon / Badge at the bottom curve if arcText is present
+  // 3. Draw Arc Ribbon / Badge (supports 0° to 360° full circle ring growth!)
   const text = options.arcText.trim();
   if (text) {
     ctx.save();
 
-    // Dynamic arc span based on string length
-    const arcSpan = Math.min(Math.PI * 0.85, Math.max(0.4, text.length * 0.085 + 0.25));
+    const numChars = text.length;
 
-    // To read #OPENTOWORK left-to-right along the bottom arc:
-    // Start angle at bottom-left (Math.PI / 2 + arcSpan / 2)
-    // End angle at bottom-right (Math.PI / 2 - arcSpan / 2)
-    const startAngle = Math.PI / 2 + arcSpan / 2;
-    const endAngle = Math.PI / 2 - arcSpan / 2;
+    // Calculate arc span (grows continuously up to full 360° / 2*PI circle)
+    // 0.075 rad per char (~4.3 degrees per letter)
+    const rawSpan = Math.max(0.35, numChars * 0.078 + 0.15);
+    const isFullCircle = rawSpan >= Math.PI * 1.9;
+    const arcSpan = isFullCircle ? Math.PI * 2 : rawSpan;
 
-    const ribbonThickness = size * 0.11; // Badge thickness
+    // Convert start angle from degrees (default 180° = 9 o'clock)
+    const startAngle = (options.arcRotation * Math.PI) / 180;
+    const endAngle = isFullCircle ? startAngle - Math.PI * 1.999 : startAngle - arcSpan;
+
+    const ribbonThickness = size * 0.11; // Ribbon thickness
     const ribbonRadius = radius - ribbonThickness / 2 + 2;
 
-    // Draw Ribbon Background (from bottom-left to bottom-right)
+    // Draw Ribbon Background (Gradient, Solid, or Outline)
     ctx.beginPath();
-    ctx.arc(centerX, centerY, ribbonRadius, Math.PI / 2 - arcSpan / 2 - 0.04, Math.PI / 2 + arcSpan / 2 + 0.04, false);
+    if (isFullCircle) {
+      ctx.arc(centerX, centerY, ribbonRadius, 0, Math.PI * 2, false);
+    } else {
+      ctx.arc(centerX, centerY, ribbonRadius, endAngle - 0.04, startAngle + 0.04, false);
+    }
     ctx.lineWidth = ribbonThickness;
 
     if (options.badgeStyle === 'gradient') {
       const gradPreset = GRADIENT_PRESETS.find(g => g.name === options.gradientPreset) || GRADIENT_PRESETS[0];
       const grad = ctx.createLinearGradient(
         centerX - radius, centerY + radius,
-        centerX + radius, centerY + radius
+        centerX + radius, centerY - radius
       );
       grad.addColorStop(0, gradPreset.colors[0]);
       grad.addColorStop(1, gradPreset.colors[1]);
@@ -133,29 +141,27 @@ export function drawProfileFrame(
       ctx.strokeStyle = options.arcColor || '#10B981';
     }
 
-    ctx.lineCap = 'round';
+    ctx.lineCap = isFullCircle ? 'butt' : 'round';
     ctx.stroke();
 
-    // Draw Curved Text along arc (Left-to-Right: # on left, K on right, right-side up)
+    // Draw Curved Text along arc
     ctx.fillStyle = options.textColor || '#FFFFFF';
-    ctx.font = `800 ${size * 0.042}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    ctx.font = `800 ${size * (isFullCircle ? 0.036 : 0.042)}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const numChars = text.length;
-    const totalAngle = endAngle - startAngle;
-    const angleStep = totalAngle / Math.max(numChars - 1, 1);
+    const angleStep = isFullCircle ? (Math.PI * 2) / numChars : (startAngle - endAngle) / Math.max(numChars - 1, 1);
 
     for (let i = 0; i < numChars; i++) {
       const char = text[i];
-      const angle = startAngle + i * angleStep;
+      const angle = isFullCircle ? startAngle - i * angleStep : startAngle - i * angleStep;
 
       const charX = centerX + ribbonRadius * Math.cos(angle);
       const charY = centerY + ribbonRadius * Math.sin(angle);
 
       ctx.save();
       ctx.translate(charX, charY);
-      // Rotate angle - Math.PI / 2 so text is right-side up and reads #OPENTOWORK left-to-right
+      // Rotate angle - Math.PI / 2 for clean right-side up text rendering
       ctx.rotate(angle - Math.PI / 2);
       ctx.fillText(char, 0, 0);
       ctx.restore();
