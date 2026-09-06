@@ -77,7 +77,7 @@ export function drawProfileFrame(
   } else {
     // Placeholder avatar icon text
     ctx.fillStyle = '#9CA3AF';
-    ctx.font = `bold ${size * 0.1}px system-ui, sans-serif`;
+    ctx.font = `bold ${size * 0.08}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('Upload Photo', centerX, centerY);
@@ -101,16 +101,17 @@ export function drawProfileFrame(
   if (text) {
     ctx.save();
 
-    const arcSpan = Math.min(Math.PI * 0.8, (text.length * 0.12) + 0.3);
+    // Dynamic arc span based on string length
+    const arcSpan = Math.min(Math.PI * 0.85, Math.max(0.4, text.length * 0.085 + 0.25));
     const startAngle = Math.PI / 2 - arcSpan / 2;
     const endAngle = Math.PI / 2 + arcSpan / 2;
 
-    const ribbonThickness = size * 0.1; // Badge thickness
+    const ribbonThickness = size * 0.11; // Badge thickness
     const ribbonRadius = radius - ribbonThickness / 2 + 2;
 
     // Draw Ribbon Background
     ctx.beginPath();
-    ctx.arc(centerX, centerY, ribbonRadius, startAngle - 0.05, endAngle + 0.05, false);
+    ctx.arc(centerX, centerY, ribbonRadius, startAngle - 0.04, endAngle + 0.04, false);
     ctx.lineWidth = ribbonThickness;
 
     if (options.badgeStyle === 'gradient') {
@@ -123,7 +124,7 @@ export function drawProfileFrame(
       grad.addColorStop(1, gradPreset.colors[1]);
       ctx.strokeStyle = grad;
     } else if (options.badgeStyle === 'outline') {
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)';
     } else {
       ctx.strokeStyle = options.arcColor || '#10B981';
     }
@@ -131,7 +132,7 @@ export function drawProfileFrame(
     ctx.lineCap = 'round';
     ctx.stroke();
 
-    // Draw Curved Text along arc
+    // Draw Curved Text along arc (Right-Side Up)
     ctx.fillStyle = options.textColor || '#FFFFFF';
     ctx.font = `800 ${size * 0.042}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
     ctx.textAlign = 'center';
@@ -150,8 +151,8 @@ export function drawProfileFrame(
 
       ctx.save();
       ctx.translate(charX, charY);
-      // Rotate perpendicular to circle tangent
-      ctx.rotate(angle + Math.PI / 2);
+      // Rotate angle - Math.PI / 2 so text is right-side up along bottom arc
+      ctx.rotate(angle - Math.PI / 2);
       ctx.fillText(char, 0, 0);
       ctx.restore();
     }

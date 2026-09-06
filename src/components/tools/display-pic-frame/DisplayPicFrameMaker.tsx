@@ -7,7 +7,8 @@ import {
   Palette, 
   RefreshCw, 
   Sliders, 
-  Image as ImageIcon 
+  Image as ImageIcon,
+  Move
 } from 'lucide-react';
 import { ToolPageHeader } from '../../ToolPageHeader';
 import { 
@@ -21,6 +22,11 @@ export const DisplayPicFrameMaker: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [imageObj, setImageObj] = useState<HTMLImageElement | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+
+  // Drag / Pan & Zoom In-Place State
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const initialOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Frame Customization Options State
   const [options, setOptions] = useState<FrameOptions>({
@@ -54,7 +60,6 @@ export const DisplayPicFrameMaker: React.FC = () => {
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
-        // Calculate initial zoom to fit cover
         const minDim = Math.min(img.width, img.height);
         const initialZoom = 400 / minDim;
         setImageObj(img);
@@ -100,6 +105,72 @@ export const DisplayPicFrameMaker: React.FC = () => {
     }));
   };
 
+  // In-Place Mouse Drag / Pan Handlers
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    initialOffsetRef.current = { x: options.offsetX, y: options.offsetY };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+
+    const factor = 1.05;
+    const newX = Math.round(initialOffsetRef.current.x + dx * factor);
+    const newY = Math.round(initialOffsetRef.current.y + dy * factor);
+
+    setOptions(prev => ({
+      ...prev,
+      offsetX: Math.max(-300, Math.min(300, newX)),
+      offsetY: Math.max(-300, Math.min(300, newY))
+    }));
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // In-Place Touch Handlers (Mobile)
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      initialOffsetRef.current = { x: options.offsetX, y: options.offsetY };
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - dragStartRef.current.x;
+    const dy = e.touches[0].clientY - dragStartRef.current.y;
+
+    const factor = 1.05;
+    const newX = Math.round(initialOffsetRef.current.x + dx * factor);
+    const newY = Math.round(initialOffsetRef.current.y + dy * factor);
+
+    setOptions(prev => ({
+      ...prev,
+      offsetX: Math.max(-300, Math.min(300, newX)),
+      offsetY: Math.max(-300, Math.min(300, newY))
+    }));
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  // Mouse Wheel In-Place Zoom Handler
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.05 : -0.05;
+    setOptions(prev => {
+      const newZoom = Math.max(0.2, Math.min(4.0, parseFloat((prev.zoom + delta).toFixed(2))));
+      return { ...prev, zoom: newZoom };
+    });
+  };
+
   return (
     <>
       <ToolPageHeader title="Display Picture Frame Maker" category="Utilities" />
@@ -109,7 +180,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
         {/* Preset Badge Chips Bar */}
         <div className="tools-controls" style={{ marginBottom: '1.5rem', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <Sparkles size={16} color="var(--brand-primary)" />
+            <Sparkles size={16} style={{ color: 'var(--brand-primary)' }} />
             <span>Preset Badges:</span>
           </span>
 
@@ -138,7 +209,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
             <div className="tool-card" style={{ padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <ImageIcon size={18} color="var(--brand-primary)" />
+                  <ImageIcon size={18} style={{ color: 'var(--brand-primary)' }} />
                   <span>1. Upload Profile Photo</span>
                 </h3>
 
@@ -177,7 +248,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
             {/* 2. Arc Badge & Text Settings */}
             <div className="tool-card" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Palette size={18} color="var(--brand-primary)" />
+                <Palette size={18} style={{ color: 'var(--brand-primary)' }} />
                 <span>2. Arc Badge & Text Customization</span>
               </h3>
 
@@ -316,12 +387,12 @@ export const DisplayPicFrameMaker: React.FC = () => {
               </div>
             </div>
 
-            {/* 3. Photo Zoom & Alignment */}
+            {/* 3. Photo Zoom & Alignment Sliders */}
             <div className="tool-card" style={{ padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Sliders size={18} color="var(--brand-primary)" />
-                  <span>3. Image Zoom & Alignment</span>
+                  <Sliders size={18} style={{ color: 'var(--brand-primary)' }} />
+                  <span>3. Image Zoom & Alignment Sliders</span>
                 </h3>
 
                 <button
@@ -340,7 +411,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <ZoomIn size={14} color="var(--brand-primary)" />
+                      <ZoomIn size={14} style={{ color: 'var(--brand-primary)' }} />
                       <span>Zoom Level:</span>
                     </span>
                     <span>{options.zoom.toFixed(2)}x</span>
@@ -400,30 +471,56 @@ export const DisplayPicFrameMaker: React.FC = () => {
                   Live Profile Frame Preview
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  High-res HTML5 Canvas Preview (800x800 px)
+                  Interactive Canvas (Drag photo inside preview to position • Scroll to zoom)
                 </p>
               </div>
 
-              {/* Canvas Container */}
+              {/* Canvas Container with Mouse & Touch Event Handlers */}
               <div style={{
+                position: 'relative',
                 display: 'inline-block',
-                padding: '1rem',
+                padding: '0.85rem',
                 backgroundColor: 'var(--bg-elevated)',
                 borderRadius: 'var(--radius-lg)',
                 border: '1px solid var(--border-subtle)',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-                marginBottom: '1.5rem'
+                marginBottom: '1.25rem',
+                userSelect: 'none'
               }}>
                 <canvas
                   ref={canvasRef}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onWheel={handleWheel}
                   style={{
                     width: '320px',
                     height: '320px',
                     borderRadius: '50%',
                     display: 'block',
-                    backgroundColor: '#E5E7EB'
+                    backgroundColor: '#E5E7EB',
+                    cursor: isDragging ? 'grabbing' : 'grab',
+                    touchAction: 'none'
                   }}
                 />
+
+                <div style={{
+                  marginTop: '0.75rem',
+                  fontSize: '0.75rem',
+                  color: 'var(--brand-primary)',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35rem'
+                }}>
+                  <Move size={14} />
+                  <span>Drag photo to align • Scroll wheel to zoom in/out</span>
+                </div>
               </div>
 
               {/* High-Res Download Button */}
