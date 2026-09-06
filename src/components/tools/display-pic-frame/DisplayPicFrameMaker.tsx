@@ -105,15 +105,16 @@ export const DisplayPicFrameMaker: React.FC = () => {
     }));
   };
 
-  // In-Place Mouse Drag / Pan Handlers
+  // In-Place Mouse Drag / Pan Handlers (Only active when image is loaded!)
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!imageObj) return;
     setIsDragging(true);
     dragStartRef.current = { x: e.clientX, y: e.clientY };
     initialOffsetRef.current = { x: options.offsetX, y: options.offsetY };
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDragging) return;
+    if (!imageObj || !isDragging) return;
     const dx = e.clientX - dragStartRef.current.x;
     const dy = e.clientY - dragStartRef.current.y;
 
@@ -132,8 +133,9 @@ export const DisplayPicFrameMaker: React.FC = () => {
     setIsDragging(false);
   };
 
-  // In-Place Touch Handlers (Mobile)
+  // In-Place Touch Handlers (Only active when image is loaded!)
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!imageObj) return;
     if (e.touches.length === 1) {
       setIsDragging(true);
       dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -142,7 +144,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
   };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDragging || e.touches.length !== 1) return;
+    if (!imageObj || !isDragging || e.touches.length !== 1) return;
     const dx = e.touches[0].clientX - dragStartRef.current.x;
     const dy = e.touches[0].clientY - dragStartRef.current.y;
 
@@ -161,8 +163,9 @@ export const DisplayPicFrameMaker: React.FC = () => {
     setIsDragging(false);
   };
 
-  // Mouse Wheel In-Place Zoom Handler
+  // Mouse Wheel In-Place Zoom Handler (Only active when image is loaded!)
   const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    if (!imageObj) return;
     e.preventDefault();
     const delta = e.deltaY < 0 ? 0.05 : -0.05;
     setOptions(prev => {
@@ -356,13 +359,24 @@ export const DisplayPicFrameMaker: React.FC = () => {
                   {options.showOuterRing && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>
-                          Border Width: {options.borderWidth}px
-                        </label>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                          <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            Border Width:
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="20"
+                            className="search-input"
+                            value={options.borderWidth}
+                            onChange={e => setOptions(prev => ({ ...prev, borderWidth: Math.max(1, Math.min(20, parseInt(e.target.value) || 1)) }))}
+                            style={{ width: '60px', padding: '0.15rem 0.4rem', fontSize: '0.75rem', borderRadius: '4px', textAlign: 'center' }}
+                          />
+                        </div>
                         <input
                           type="range"
                           min="1"
-                          max="12"
+                          max="20"
                           value={options.borderWidth}
                           onChange={e => setOptions(prev => ({ ...prev, borderWidth: parseInt(e.target.value) }))}
                           style={{ width: '100%', cursor: 'pointer' }}
@@ -387,12 +401,12 @@ export const DisplayPicFrameMaker: React.FC = () => {
               </div>
             </div>
 
-            {/* 3. Photo Zoom & Alignment Sliders */}
+            {/* 3. Photo Zoom & Alignment Controls (With Manual Text Field Inputs!) */}
             <div className="tool-card" style={{ padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Sliders size={18} style={{ color: 'var(--brand-primary)' }} />
-                  <span>3. Image Zoom & Alignment Sliders</span>
+                  <span>3. Image Zoom & Alignment Controls</span>
                 </h3>
 
                 <button
@@ -406,15 +420,28 @@ export const DisplayPicFrameMaker: React.FC = () => {
                 </button>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                {/* Zoom Slider */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {/* Zoom Slider + Manual Text Input */}
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                       <ZoomIn size={14} style={{ color: 'var(--brand-primary)' }} />
                       <span>Zoom Level:</span>
                     </span>
-                    <span>{options.zoom.toFixed(2)}x</span>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <input
+                        type="number"
+                        step="0.05"
+                        min="0.2"
+                        max="4.0"
+                        className="search-input"
+                        value={options.zoom}
+                        onChange={e => setOptions(prev => ({ ...prev, zoom: Math.max(0.2, Math.min(4.0, parseFloat(e.target.value) || 1.0)) }))}
+                        style={{ width: '65px', padding: '0.2rem 0.4rem', fontSize: '0.78rem', borderRadius: '4px', textAlign: 'center' }}
+                      />
+                      <span>x</span>
+                    </div>
                   </div>
                   <input
                     type="range"
@@ -427,12 +454,25 @@ export const DisplayPicFrameMaker: React.FC = () => {
                   />
                 </div>
 
-                {/* X & Y Offsets */}
+                {/* X & Y Offsets + Manual Text Inputs */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.2rem', color: 'var(--text-secondary)' }}>
-                      Horizontal Pan (X): {options.offsetX}px
-                    </label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+                      <span>Horizontal Pan (X):</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                        <input
+                          type="number"
+                          step="1"
+                          min="-300"
+                          max="300"
+                          className="search-input"
+                          value={options.offsetX}
+                          onChange={e => setOptions(prev => ({ ...prev, offsetX: Math.max(-300, Math.min(300, parseInt(e.target.value) || 0)) }))}
+                          style={{ width: '55px', padding: '0.15rem 0.35rem', fontSize: '0.75rem', borderRadius: '4px', textAlign: 'center' }}
+                        />
+                        <span>px</span>
+                      </div>
+                    </div>
                     <input
                       type="range"
                       min="-200"
@@ -444,9 +484,22 @@ export const DisplayPicFrameMaker: React.FC = () => {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.2rem', color: 'var(--text-secondary)' }}>
-                      Vertical Pan (Y): {options.offsetY}px
-                    </label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+                      <span>Vertical Pan (Y):</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                        <input
+                          type="number"
+                          step="1"
+                          min="-300"
+                          max="300"
+                          className="search-input"
+                          value={options.offsetY}
+                          onChange={e => setOptions(prev => ({ ...prev, offsetY: Math.max(-300, Math.min(300, parseInt(e.target.value) || 0)) }))}
+                          style={{ width: '55px', padding: '0.15rem 0.35rem', fontSize: '0.75rem', borderRadius: '4px', textAlign: 'center' }}
+                        />
+                        <span>px</span>
+                      </div>
+                    </div>
                     <input
                       type="range"
                       min="-200"
@@ -471,7 +524,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
                   Live Profile Frame Preview
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  Interactive Canvas (Drag photo inside preview to position • Scroll to zoom)
+                  Interactive Canvas (800x800 px High-Res Output)
                 </p>
               </div>
 
@@ -503,7 +556,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
                     borderRadius: '50%',
                     display: 'block',
                     backgroundColor: '#E5E7EB',
-                    cursor: isDragging ? 'grabbing' : 'grab',
+                    cursor: imageObj ? (isDragging ? 'grabbing' : 'grab') : 'default',
                     touchAction: 'none'
                   }}
                 />
@@ -511,7 +564,7 @@ export const DisplayPicFrameMaker: React.FC = () => {
                 <div style={{
                   marginTop: '0.75rem',
                   fontSize: '0.75rem',
-                  color: 'var(--brand-primary)',
+                  color: imageObj ? 'var(--brand-primary)' : 'var(--text-tertiary)',
                   fontWeight: 600,
                   display: 'flex',
                   alignItems: 'center',
@@ -519,7 +572,11 @@ export const DisplayPicFrameMaker: React.FC = () => {
                   gap: '0.35rem'
                 }}>
                   <Move size={14} />
-                  <span>Drag photo to align • Scroll wheel to zoom in/out</span>
+                  <span>
+                    {imageObj 
+                      ? 'Drag photo inside preview to align • Scroll wheel to zoom' 
+                      : 'Upload a photo above to enable drag & zoom positioning'}
+                  </span>
                 </div>
               </div>
 

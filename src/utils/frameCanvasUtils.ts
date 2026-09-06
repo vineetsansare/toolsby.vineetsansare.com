@@ -103,15 +103,19 @@ export function drawProfileFrame(
 
     // Dynamic arc span based on string length
     const arcSpan = Math.min(Math.PI * 0.85, Math.max(0.4, text.length * 0.085 + 0.25));
-    const startAngle = Math.PI / 2 - arcSpan / 2;
-    const endAngle = Math.PI / 2 + arcSpan / 2;
+
+    // To read #OPENTOWORK left-to-right along the bottom arc:
+    // Start angle at bottom-left (Math.PI / 2 + arcSpan / 2)
+    // End angle at bottom-right (Math.PI / 2 - arcSpan / 2)
+    const startAngle = Math.PI / 2 + arcSpan / 2;
+    const endAngle = Math.PI / 2 - arcSpan / 2;
 
     const ribbonThickness = size * 0.11; // Badge thickness
     const ribbonRadius = radius - ribbonThickness / 2 + 2;
 
-    // Draw Ribbon Background
+    // Draw Ribbon Background (from bottom-left to bottom-right)
     ctx.beginPath();
-    ctx.arc(centerX, centerY, ribbonRadius, startAngle - 0.04, endAngle + 0.04, false);
+    ctx.arc(centerX, centerY, ribbonRadius, Math.PI / 2 - arcSpan / 2 - 0.04, Math.PI / 2 + arcSpan / 2 + 0.04, false);
     ctx.lineWidth = ribbonThickness;
 
     if (options.badgeStyle === 'gradient') {
@@ -132,7 +136,7 @@ export function drawProfileFrame(
     ctx.lineCap = 'round';
     ctx.stroke();
 
-    // Draw Curved Text along arc (Right-Side Up)
+    // Draw Curved Text along arc (Left-to-Right: # on left, K on right, right-side up)
     ctx.fillStyle = options.textColor || '#FFFFFF';
     ctx.font = `800 ${size * 0.042}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
     ctx.textAlign = 'center';
@@ -151,7 +155,7 @@ export function drawProfileFrame(
 
       ctx.save();
       ctx.translate(charX, charY);
-      // Rotate angle - Math.PI / 2 so text is right-side up along bottom arc
+      // Rotate angle - Math.PI / 2 so text is right-side up and reads #OPENTOWORK left-to-right
       ctx.rotate(angle - Math.PI / 2);
       ctx.fillText(char, 0, 0);
       ctx.restore();
