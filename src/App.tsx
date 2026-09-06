@@ -12,6 +12,7 @@ import { Tool } from './types/tool';
 import JsonStudio from './components/tools/json-formatter/JsonStudio';
 import PdfHub from './components/tools/pdf-toolkit/PdfHub';
 import PromptCraft from './components/tools/prompt-craft/PromptCraft';
+import DisplayPicFrameMaker from './components/tools/display-pic-frame/DisplayPicFrameMaker';
 
 const HomePage: React.FC = () => {
   const [activeModalTool, setActiveModalTool] = useState<Tool | null>(null);
@@ -93,9 +94,11 @@ export const App: React.FC = () => {
           <Route path="/pdfhub/*" element={<PdfHub />} />
           <Route path="/prompt-craft/*" element={<PromptCraft />} />
           <Route path="/prompt-studio/*" element={<PromptCraft />} />
+          <Route path="/displayPicFrameMaker/*" element={<DisplayPicFrameMaker />} />
           <Route path="/json-formatter" element={<JsonStudio />} />
           <Route path="/pdf-toolkit" element={<PdfHub />} />
           <Route path="/prompt-studio" element={<PromptCraft />} />
+          <Route path="/display-pic-frame" element={<DisplayPicFrameMaker />} />
           <Route path="/tools/:toolId" element={<ToolRouteRedirect />} />
           <Route path="*" element={<HomePage />} />
         </Routes>

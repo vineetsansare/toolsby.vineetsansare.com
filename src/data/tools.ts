@@ -61,6 +61,21 @@ export const TOOLS_REGISTRY: Tool[] = [
     tags: ['AI', 'Prompts', 'Productivity', 'Code Exporter'],
     version: 'v1.0',
     accentColor: '#8B5CF6'
+  },
+  {
+    id: 'display-pic-frame',
+    name: 'Display Picture Frame Maker',
+    shortDescription: 'Customize your LinkedIn, Twitter, and social media profile photos with curved text badges, colors, and borders.',
+    longDescription: 'Display Picture Frame Maker is a free, privacy-first profile picture badge generator. Add curved arc text badges like #OPENTOWORK, #HIRING, or custom text, customize gradient colors, adjust zoom and alignment, and download high-res PNGs.',
+    category: 'Utilities',
+    status: 'available',
+    url: 'https://toolsby.vineetsansare.com/displayPicFrameMaker/',
+    isExternal: true,
+    iconName: 'ImageIcon',
+    featured: true,
+    tags: ['Profile Picture', 'LinkedIn Frame', 'Badge Generator', 'Client-side'],
+    version: 'v1.0',
+    accentColor: '#3B82F6'
   }
 ];
 
