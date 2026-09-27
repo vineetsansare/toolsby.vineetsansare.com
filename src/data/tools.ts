@@ -76,6 +76,21 @@ export const TOOLS_REGISTRY: Tool[] = [
     tags: ['AI', 'Prompts', 'Productivity', 'Code Exporter'],
     version: 'v1.0',
     accentColor: '#8B5CF6'
+  },
+  {
+    id: 'email-signature-maker',
+    name: 'Email Signature Maker',
+    shortDescription: 'Create custom, professional email signatures with pre-built templates, photos, and social links for Gmail, Outlook, and Apple Mail.',
+    longDescription: 'Email Signature Maker is a free, privacy-first online email signature builder. Choose from ready-to-use professional templates or customize from scratch with photos, social links, custom colors, CTA buttons, and legal disclaimers. Copy 1-click formatted HTML into Gmail or Outlook!',
+    category: 'Utilities',
+    status: 'available',
+    url: 'https://toolsby.vineetsansare.com/emailSignatureMaker/',
+    isExternal: true,
+    iconName: 'User',
+    featured: true,
+    tags: ['Email Signature', 'Gmail', 'Outlook', 'Signature Generator', 'Client-side'],
+    version: 'v1.0',
+    accentColor: '#6366F1'
   }
 ];
 
